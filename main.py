@@ -2,18 +2,17 @@ from fastapi import FastAPI
 import random
 import psycopg2
 from collections import Counter
+import os
+import dotenv
+
+dotenv.load_dotenv()
 
 app = FastAPI()
 
-
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 def get_connection():
-    return psycopg2.connect(
-        host="localhost",
-        user="postgres",
-        password="password",  # replace
-        dbname="lottery"
-    )
+    return psycopg2.connect(DATABASE_URL )
 
 
 def model(times, num=2222, max_number=9999, top_k=10, occ=4):
