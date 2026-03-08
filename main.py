@@ -11,11 +11,12 @@ app = FastAPI()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+
 def get_connection():
-    return psycopg2.connect(DATABASE_URL )
+    return psycopg2.connect(DATABASE_URL)
 
 
-def model(times, num=2222, max_number=9999, top_k=10, occ=4):
+def model(times, num, top_k, occ):
     conn = get_connection()
     cur = conn.cursor()
 
@@ -31,11 +32,11 @@ def model(times, num=2222, max_number=9999, top_k=10, occ=4):
 
     counter = Counter(plot_data)
 
-    last_seen = {n: None for n in range(1, max_number + 1)}
+    # last_seen = {n: None for n in range(1, max_number + 1)}
 
-    for day_index, daily_numbers in enumerate(history):
-        for number in daily_numbers:
-            last_seen[number] = day_index
+    # for day_index, daily_numbers in enumerate(history):
+    #     for number in daily_numbers:
+    #         last_seen[number] = day_index
 
     numbers = []
 
@@ -49,7 +50,7 @@ def model(times, num=2222, max_number=9999, top_k=10, occ=4):
         ans = random.sample(numbers, min(top_k, len(numbers)))
 
     ans.sort()
-    return ans
+    return ans, max(counter.values()), counter[num]
 
 
 @app.get("/")
@@ -58,16 +59,13 @@ def home():
 
 
 @app.get("/predict")
-def predict(
-    times: int = 50,
-    num: int = 4019,
-    top_k: int = 8,
-    occ: int = 6
-):
+def predict(times: int = 50, num: int = 4019, top_k: int = 8, occ: int = 6):
 
-    result = model(times, num, top_k=top_k, occ=occ)
+    result, highest, times = model(times, num, top_k=top_k, occ=occ)
 
     return {
         "input_number": num,
-        "prediction": result
+        "times": times,
+        "highest": highest,
+        "prediction": result,
     }
