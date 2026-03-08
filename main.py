@@ -1,0 +1,74 @@
+from fastapi import FastAPI
+import random
+import psycopg2
+from collections import Counter
+
+app = FastAPI()
+
+
+
+def get_connection():
+    return psycopg2.connect(
+        host="localhost",
+        user="postgres",
+        password="password",  # replace
+        dbname="lottery"
+    )
+
+
+def model(times, num=2222, max_number=9999, top_k=10, occ=4):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT numbers FROM daily_results ORDER BY draw_date")
+    rows = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    history = [row[0] for row in rows]
+
+    plot_data = [n for sublist in history for n in sublist]
+
+    counter = Counter(plot_data)
+
+    last_seen = {n: None for n in range(1, max_number + 1)}
+
+    for day_index, daily_numbers in enumerate(history):
+        for number in daily_numbers:
+            last_seen[number] = day_index
+
+    numbers = []
+
+    for number, count in counter.items():
+        if count > occ:
+            numbers.append(number)
+
+    ans = []
+
+    for _ in range(times):
+        ans = random.sample(numbers, min(top_k, len(numbers)))
+
+    ans.sort()
+    return ans
+
+
+@app.get("/")
+def home():
+    return {"message": "Lottery Prediction API Running"}
+
+
+@app.get("/predict")
+def predict(
+    times: int = 50,
+    num: int = 4019,
+    top_k: int = 8,
+    occ: int = 6
+):
+
+    result = model(times, num, top_k=top_k, occ=occ)
+
+    return {
+        "input_number": num,
+        "prediction": result
+    }
