@@ -41,7 +41,7 @@ def model(times, num, top_k, occ):
     numbers = []
 
     for number, count in counter.items():
-        if count > occ:
+        if count >= occ:
             numbers.append(number)
 
     ans = []
@@ -68,4 +68,5 @@ def predict(times: int = 50, num: int = 4019, top_k: int = 8, occ: int = 6):
         "times": times,
         "highest": highest,
         "prediction": result,
+        "params": "times,num,top_k,occ",
     }
