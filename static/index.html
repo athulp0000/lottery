@@ -2,6 +2,35 @@
 <html>
 <head>
 <title>Lottery Predictor</title>
+
+<style>
+
+body{
+font-family: Arial;
+margin:40px;
+}
+
+#spinner{
+display:none;
+margin-top:20px;
+}
+
+.loader{
+border:6px solid #f3f3f3;
+border-top:6px solid #3498db;
+border-radius:50%;
+width:40px;
+height:40px;
+animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+0%{transform:rotate(0deg);}
+100%{transform:rotate(360deg);}
+}
+
+</style>
+
 </head>
 
 <body>
@@ -22,22 +51,30 @@ Occurrence
 
 <button onclick="predict()">Predict</button>
 
+<div id="spinner">
+<div class="loader"></div>
+<p>Calculating prediction...</p>
+</div>
+
 <pre id="output"></pre>
 
 <script>
 
 async function predict(){
 
+document.getElementById("spinner").style.display="block"
+document.getElementById("output").textContent=""
+
 let times = document.getElementById("times").value
 let num = document.getElementById("num").value
 let top_k = document.getElementById("top_k").value
 let occ = document.getElementById("occ").value
 
-let url = `/predict?times=${times}&num=${num}&top_k=${top_k}&occ=${occ}`
-
-let res = await fetch(url)
+let res = await fetch(`/predict?times=${times}&num=${num}&top_k=${top_k}&occ=${occ}`)
 
 let data = await res.json()
+
+document.getElementById("spinner").style.display="none"
 
 document.getElementById("output").textContent =
 JSON.stringify(data,null,2)
