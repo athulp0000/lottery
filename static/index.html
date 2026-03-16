@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Lottery Predictor</title>
+</head>
+
+<body>
+
+<h2>Lottery Predictor</h2>
+
+Times
+<input id="times" value="50"><br><br>
+
+Number
+<input id="num" value="4019"><br><br>
+
+Top K
+<input id="top_k" value="8"><br><br>
+
+Occurrence
+<input id="occ" value="6"><br><br>
+
+<button onclick="predict()">Predict</button>
+
+<pre id="output"></pre>
+
+<script>
+
+async function predict(){
+
+let times = document.getElementById("times").value
+let num = document.getElementById("num").value
+let top_k = document.getElementById("top_k").value
+let occ = document.getElementById("occ").value
+
+let url = `/predict?times=${times}&num=${num}&top_k=${top_k}&occ=${occ}`
+
+let res = await fetch(url)
+
+let data = await res.json()
+
+document.getElementById("output").textContent =
+JSON.stringify(data,null,2)
+
+}
+
+</script>
+
+</body>
+</html>
