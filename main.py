@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 import random
 import psycopg2
 from collections import Counter
@@ -10,6 +12,8 @@ dotenv.load_dotenv()
 app = FastAPI()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 def get_connection():
@@ -32,12 +36,6 @@ def model(times, num, top_k, occ):
 
     counter = Counter(plot_data)
 
-    # last_seen = {n: None for n in range(1, max_number + 1)}
-
-    # for day_index, daily_numbers in enumerate(history):
-    #     for number in daily_numbers:
-    #         last_seen[number] = day_index
-
     numbers = []
 
     for number, count in counter.items():
@@ -55,7 +53,7 @@ def model(times, num, top_k, occ):
 
 @app.get("/")
 def home():
-    return {"message": "Lottery Prediction API Running"}
+    return FileResponse("static/index.html")
 
 
 @app.get("/predict")
