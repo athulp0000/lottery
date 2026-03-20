@@ -4,81 +4,149 @@
 <title>Lottery Predictor</title>
 
 <style>
-
 body{
-font-family: Arial;
-margin:40px;
+    font-family: Arial;
+    margin:0;
+    height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#667eea;
+}
+
+/* MAIN FIX */
+.container{
+    background:white;
+    padding:30px;
+    border-radius:10px;
+    width:350px;
+
+    display:flex;
+    flex-direction:column;   /* 🔥 FORCE VERTICAL */
+}
+
+/* EACH FIELD STACKS */
+.input-group{
+    display:flex;
+    flex-direction:column;
+    margin-bottom:15px;
+}
+
+/* FORCE EVERYTHING FULL WIDTH */
+input, button, pre{
+    width:100%;
+    display:block;
+    box-sizing:border-box;
+}
+
+input{
+    padding:8px;
+    margin-top:5px;
+}
+
+button{
+    margin-top:10px;
+    padding:10px;
+    cursor:pointer;
+}
+
+#output{
+    margin-top:15px;
 }
 
 #spinner{
-display:none;
-margin-top:20px;
+    display:none;
+    margin-top:15px;
+    text-align:center;
 }
 
 .loader{
-border:6px solid #f3f3f3;
-border-top:6px solid #3498db;
-border-radius:50%;
-width:40px;
-height:40px;
-animation:spin 1s linear infinite;
+    border:6px solid #f3f3f3;
+    border-top:6px solid #3498db;
+    border-radius:50%;
+    width:40px;
+    height:40px;
+    margin:auto;
+    animation:spin 1s linear infinite;
 }
 
 @keyframes spin{
-0%{transform:rotate(0deg);}
-100%{transform:rotate(360deg);}
+    0%{transform:rotate(0deg);}
+    100%{transform:rotate(360deg);}
 }
 
 </style>
 
 </head>
-
 <body>
 
-<h2>Lottery Predictor</h2>
+<div class="container">
 
-Times
-<input id="times" value="50"><br><br>
+<h2>🎯 Lottery Predictor</h2>
 
-Number
-<input id="num" value="4019"><br><br>
+<div class="input-group">
+<label>Times</label>
+<input id="times" value="50">
+</div>
 
-Top K
-<input id="top_k" value="8"><br><br>
+<div class="input-group">
+<label>Number</label>
+<input id="num" value="4019">
+</div>
 
-Occurrence
-<input id="occ" value="6"><br><br>
+<div class="input-group">
+<label>Top K</label>
+<input id="top_k" value="8">
+</div>
+
+<div class="input-group">
+<label>Occurrence</label>
+<input id="occ" value="6">
+</div>
 
 <button onclick="predict()">Predict</button>
 
 <div id="spinner">
-<div class="loader"></div>
-<p>Calculating prediction...</p>
+    <div class="loader"></div>
+    <p>Calculating prediction...</p>
 </div>
 
 <pre id="output"></pre>
 
+</div>
 <script>
 
 async function predict(){
 
-document.getElementById("spinner").style.display="block"
-document.getElementById("output").textContent=""
+    document.getElementById("spinner").style.display="block"
+    document.getElementById("output").textContent=""
 
-let times = document.getElementById("times").value
-let num = document.getElementById("num").value
-let top_k = document.getElementById("top_k").value
-let occ = document.getElementById("occ").value
+    try{
+        let times = document.getElementById("times").value
+        let num = document.getElementById("num").value
+        let top_k = document.getElementById("top_k").value
+        let occ = document.getElementById("occ").value
 
-let res = await fetch(`/predict?times=${times}&num=${num}&top_k=${top_k}&occ=${occ}`)
+        let res = await fetch(
+            `http://127.0.0.1:8000/predict?times=${times}&num=${num}&top_k=${top_k}&occ=${occ}`
+        )
 
-let data = await res.json()
+        if(!res.ok){
+            throw new Error("Server error: " + res.status)
+        }
 
-document.getElementById("spinner").style.display="none"
+        let data = await res.json()
 
-document.getElementById("output").textContent =
-JSON.stringify(data,null,2)
+        document.getElementById("output").textContent =
+            JSON.stringify(data, null, 2)
 
+    }catch(err){
+        document.getElementById("output").textContent =
+            "❌ Error: " + err.message
+        console.error(err)
+    }
+
+    document.getElementById("spinner").style.display="none"
 }
 
 </script>
