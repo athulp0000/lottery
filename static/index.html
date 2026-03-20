@@ -128,7 +128,7 @@ async function predict(){
         let occ = document.getElementById("occ").value
 
         let res = await fetch(
-            `http://127.0.0.1:8000/predict?times=${times}&num=${num}&top_k=${top_k}&occ=${occ}`
+            `/predict?times=${times}&num=${num}&top_k=${top_k}&occ=${occ}`
         )
 
         if(!res.ok){
